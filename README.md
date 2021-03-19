@@ -30,7 +30,7 @@
 ## Examples:
 ```go
 package main
-import "github.com/mallvielfrass/coloredPrint/fmc"
+import "github.com/mallvielfrass/fmc"
 func main() {
 colors := [10]string{"yst", "ybt", "rst", "rbt", "gst", "gbt", "bst", "bbt", "wst", "wbt"}
 for _, value := range colors {
