@@ -2,113 +2,53 @@ package fmc
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 
-	"github.com/mattn/go-isatty"
+	"github.com/jwalton/gchalk/pkg/ansistyles"
+	"github.com/jwalton/go-supportscolor"
 )
 
-// Base attributes
-const (
-	reset attribute = iota
-	bold
-	faint
-	italic
-	underline
-	blinkSlow
-	blinkRapid
-	reverseVideo
-	concealed
-	crossedOut
+var (
+	//aqua    = rgb(0, 255, 255)
+	//black   = rgb(0, 0, 0)
+	//blue    = rgb(0, 0, 255)
+	//fuchsia = rgb(255, 0, 255)
+	//gray    = rgb(128, 128, 128)
+	//green   = rgb(0, 128, 0)
+	//lime    = rgb(0, 255, 0)
+	//	maroon  = rgb(128, 0, 0)
+	//navy    = rgb(0, 0, 128)
+	//olive   = rgb(128, 128, 0)
+	//purple  = rgb(128, 0, 128)
+	//red     = rgb(255, 0, 0)
+	//silver  = rgb(192, 192, 192)
+	//teal    = rgb(0, 128, 128)
+	//white   = rgb(255, 255, 255)
+	//yellow  = rgb(255, 255, 0)
+	aqua    = ansistyles.Ansi256(51)
+	black   = ansistyles.Ansi256(16)
+	blue    = ansistyles.Ansi256(21)
+	fuchsia = ansistyles.Ansi256(201)
+	gray    = ansistyles.Ansi256(244)
+	green   = ansistyles.Ansi256(34)
+	lime    = ansistyles.Ansi256(46)
+	maroon  = ansistyles.Ansi256(124)
+	navy    = ansistyles.Ansi256(19)
+	olive   = ansistyles.Ansi256(142)
+	purple  = ansistyles.Ansi256(127)
+	red     = ansistyles.Ansi256(196)
+	silver  = ansistyles.Ansi256(250)
+	teal    = ansistyles.Ansi256(37)
+	white   = ansistyles.Ansi256(231)
+	yellow  = ansistyles.Ansi256(226)
+	reset   = "\x1b[39m"
 )
 
-// Foreground text colors
-const (
-	fgBlack attribute = iota + 30
-	fgRed
-	fgGreen
-	fgYellow
-	fgBlue
-	fgMagenta
-	fgCyan
-	fgWhite
-)
-
-const escape = "\x1b"
-
-type attribute int
-type color struct {
-	params  []attribute
-	nocolor *bool
+func format(c, word string) string {
+	return c + word + reset
 }
-
-func (c *color) add(value ...attribute) *color {
-	c.params = append(c.params, value...)
-	return c
-}
-
-func new(value ...attribute) *color {
-	c := &color{params: make([]attribute, 0)}
-	c.add(value...)
-	return c
-}
-func (c *color) sequence() string {
-	format := make([]string, len(c.params))
-	for i, v := range c.params {
-		format[i] = strconv.Itoa(int(v))
-	}
-
-	return strings.Join(format, ";")
-}
-
-func (c *color) isNocolorSet() bool {
-	// check first if we have user setted action
-	if c.nocolor != nil {
-		return *c.nocolor
-	}
-
-	// if not return the global option, which is disabled by default
-	return nocolor
-}
-func (c *color) wrap(s string) string {
-	if c.isNocolorSet() {
-		return s
-	}
-
-	return c.format() + s + c.unformat()
-}
-func (c *color) sprintfFunc() func(format string, a ...interface{}) string {
-	return func(format string, a ...interface{}) string {
-		return c.wrap(fmt.Sprintf(format, a...))
-	}
-}
-func (c *color) sprintfFuncS() func(format string) string {
-	return func(format string) string {
-
-		color := fmt.Sprintf("%s[%sm", escape, c.sequence())
-		//d:=
-		return color + format + fmt.Sprintf("%s[%s", escape, c.unformat())
-		//return c.wrap(fmt.Sprintf(format, a...))
-	}
-	//return func(format string) string {
-
-	//}
-}
-func (c *color) format() string {
-	return fmt.Sprintf("%s[%sm", escape, c.sequence())
-}
-
-func (c *color) unformat() string {
-	return fmt.Sprintf("%s[%dm", escape, reset)
-}
-
-func checkSharp(format string) bool {
-	if strings.Contains(format, "#") == true {
-		return true
-	}
-	return false
-
+func bformat(c, word string) string {
+	return c + "\033[1m" + word + "\033[0m" + reset
 }
 func setcolor(item string) string {
 	color := ""
@@ -145,75 +85,31 @@ func setcolor(item string) string {
 	world := "	"
 	switch color {
 	case "yst":
-		world = yst(mess)
+		world = format(yellow, mess)
 	case "ybt":
-		world = ybt(mess)
+		world = bformat(yellow, mess)
 	case "rst":
-		world = rst(mess)
+		world = format(red, mess)
 	case "rbt":
-		world = rbt(mess)
+		world = bformat(red, mess)
 	case "gst":
-		world = gst(mess)
+		world = format(lime, mess)
 	case "gbt":
-		world = gbt(mess)
+		world = bformat(lime, mess)
 	case "bst":
-		world = bst(mess)
+		world = format(aqua, mess)
 	case "bbt":
-		world = bbt(mess)
+		world = bformat(aqua, mess)
 	case "wst":
-		world = wst(mess)
+		world = format(white, mess)
 	case "wbt":
-		world = wbt(mess)
+		world = bformat(white, mess)
 	default:
 		world = mess
 	}
 	//fmt.Printf("wordset:%s\n", world)
 	return world
 }
-
-var (
-	yst     = new(fgYellow).sprintfFuncS()
-	ybt     = new(fgYellow, bold).sprintfFuncS()
-	rst     = new(fgRed).sprintfFuncS()
-	rbt     = new(fgRed, bold).sprintfFuncS()
-	gst     = new(fgGreen).sprintfFuncS()
-	gbt     = new(fgGreen, bold).sprintfFuncS()
-	bst     = new(fgBlue).sprintfFuncS()
-	bbt     = new(fgBlue, bold).sprintfFuncS()
-	wst     = new(fgWhite).sprintfFuncS()
-	wbt     = new(fgWhite, bold).sprintfFuncS()
-	nocolor = os.Getenv("TERM") == "dumb" ||
-		(!isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()))
-)
-
-//Print interface
-func Print(form string) {
-	fmt.Print(Sprint(form))
-}
-
-//Println string
-func Println(form string) {
-	fmt.Print(Sprint(form))
-	fmt.Printf("\n")
-}
-
-//Printf interface
-func Printf(format string, a ...interface{}) {
-	pr := Sprint(format)
-	t := fmt.Sprintf(pr, a...)
-	fmt.Printf(t)
-
-}
-
-//Printfln +and line
-func Printfln(format string, a ...interface{}) {
-	pr := Sprint(format)
-	t := fmt.Sprintf(pr, a...)
-	fmt.Printf(t)
-	fmt.Printf("\n")
-}
-
-//Sprint prepare string to print or fmt.Sprintf(format, a...)
 func Sprint(form string) string {
 	items := strings.Split(form, "#")
 	ilen := len(items)
@@ -227,6 +123,7 @@ func Sprint(form string) string {
 				lastSymbol := string((items[i-1])[len(items[i-1])-1])
 				if lastSymbol != "!" {
 					rt := setcolor(item)
+					format(aqua, "aqua")
 					msg = msg + rt
 				} else {
 
@@ -244,44 +141,25 @@ func Sprint(form string) string {
 	return msg
 }
 
-//PrintfT interface
-func printfT(format string, a ...interface{}) {
-	if checkSharp(format) != true {
-		fmt.Print(format)
-		for _, v := range a {
+//Println string
+func Println(form string) {
+	//fmt.Print()
+	fmt.Printf("%s\n", Sprint(form))
+}
 
-			//fmt.Println(fmt.Sprintf("%s[%sm fff", escape, d.sequence()))
-			fmt.Print(v)
-		}
-		return
-	}
+//Printfln +and line
+func Printfln(wformat string, a ...interface{}) {
+	fmt.Printf(Sprint(wformat), a...)
+	fmt.Printf("\n")
+}
 
-	//	sep := strings.Split(format, "#")
-	d := new(fgRed, bold)
-	frmt := fmt.Sprintf("%s[%sm%s", escape, d.sequence(), format)
-	//for _, v := range a {
-	alen := len(a)
-	per := strings.Split(frmt, "%")
-	perc := len(per) - 1
-	if perc < alen {
-		fmt.Printf("%s %s\n", rbt("[error] Not enough separators in format string:"), format)
-		return
-	}
-
-	fmt.Printf("a:%d | perc: %d\n", alen, perc)
-	//letter := fmt.Sprintf(frmt)
-	//mstring:=
-	for i := 0; i < len(per); i++ {
-		typeW := ""
-		if i == 0 {
-			typeW = "N"
-		} else {
-			typeW = string((per[i])[0])
-		}
-
-		fmt.Printf("per:%s, type:%s \n", per[i], typeW)
-	}
-	//fmt.Print(letter)
-
-	//}
+//Printf interface
+func Printf(wformat string, a ...interface{}) {
+	//pr := Sprint(wformat)
+	//t := fmt.Sprintf(pr, a...)
+	fmt.Printf(Sprint(wformat), a...)
+	//fmt.Printf("color: %s\n", format(aqua, "aqua"))
+}
+func init() {
+	supportscolor.Stdout()
 }

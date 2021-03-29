@@ -77,6 +77,6 @@ func main() {
 	fmt.Printf("color: %s\n", format(white, "white \033[1mwhite\033[0m"))
 	fmt.Printf("color: %s\n", format(yellow, "yellow "+bold("yellow")))
 
-	fmt.Printf("color: %s", format(teal, "kek "+bold("kek")))
+	fmt.Printf("color: %s\n", format(teal, "kek "+bold("kek")))
 
 }
