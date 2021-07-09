@@ -2,7 +2,8 @@ package fmc
 
 import (
 	"fmt"
-	"strings"
+	"reflect"
+	"strconv"
 
 	"github.com/jwalton/gchalk/pkg/ansistyles"
 	"github.com/jwalton/go-supportscolor"
@@ -16,7 +17,7 @@ var (
 	//gray    = rgb(128, 128, 128)
 	//green   = rgb(0, 128, 0)
 	//lime    = rgb(0, 255, 0)
-	//	maroon  = rgb(128, 0, 0)
+	//maroon  = rgb(128, 0, 0)
 	//navy    = rgb(0, 0, 128)
 	//olive   = rgb(128, 128, 0)
 	//purple  = rgb(128, 0, 128)
@@ -25,120 +26,30 @@ var (
 	//teal    = rgb(0, 128, 128)
 	//white   = rgb(255, 255, 255)
 	//yellow  = rgb(255, 255, 0)
-	aqua    = ansistyles.Ansi256(51)
-	black   = ansistyles.Ansi256(16)
-	blue    = ansistyles.Ansi256(21)
-	fuchsia = ansistyles.Ansi256(201)
-	gray    = ansistyles.Ansi256(244)
-	green   = ansistyles.Ansi256(34)
-	lime    = ansistyles.Ansi256(46)
-	maroon  = ansistyles.Ansi256(124)
-	navy    = ansistyles.Ansi256(19)
-	olive   = ansistyles.Ansi256(142)
-	purple  = ansistyles.Ansi256(127)
-	red     = ansistyles.Ansi256(196)
-	silver  = ansistyles.Ansi256(250)
-	teal    = ansistyles.Ansi256(37)
-	white   = ansistyles.Ansi256(231)
-	yellow  = ansistyles.Ansi256(226)
+	aqua    = ansistyles.Ansi256(51)  //b
+	black   = ansistyles.Ansi256(16)  //0
+	blue    = ansistyles.Ansi256(21)  //B
+	fuchsia = ansistyles.Ansi256(201) //f
+	gray    = ansistyles.Ansi256(244) //1
+	green   = ansistyles.Ansi256(34)  //G
+	lime    = ansistyles.Ansi256(46)  //g
+	maroon  = ansistyles.Ansi256(124) //m
+	navy    = ansistyles.Ansi256(19)  //n
+	olive   = ansistyles.Ansi256(142) //o
+	purple  = ansistyles.Ansi256(127) //p
+	red     = ansistyles.Ansi256(196) //r
+	silver  = ansistyles.Ansi256(250) //s
+	teal    = ansistyles.Ansi256(37)  //t
+	white   = ansistyles.Ansi256(231) //w
+	yellow  = ansistyles.Ansi256(226) //y
 	reset   = "\x1b[39m"
 )
 
 func format(c, word string) string {
-	return c + word + reset
+	return "\033[0m" + reset + c + word //+ reset
 }
 func bformat(c, word string) string {
-	return c + "\033[1m" + word + "\033[0m" + reset
-}
-func setcolor(item string) string {
-	color := ""
-	mess := ""
-	itemLen := len(item)
-	//	fmt.Printf("item:%s, itemLen: '%d'\n", item, itemLen)
-	if 3 < itemLen {
-		//		fmt.Printf("item[3]: '%s'\n", string(item[3]))
-		color = item[0:3]
-		if 4 <= itemLen {
-			if string(item[3]) == " " {
-				//				fmt.Println("item[3]")
-				if 4 < len(item) {
-					mess = item[4:]
-				} else {
-					mess = item[3:]
-				}
-
-			} else {
-				//			fmt.Println("!item[3]")
-				mess = item[3:]
-			}
-
-		} else {
-			mess = item[3:]
-		}
-	} else {
-
-		color = ""
-		mess = ""
-	}
-	//	fmt.Printf("color: %s\n", color)
-	//	fmt.Printf("mess: %s\n", mess)
-	world := "	"
-	switch color {
-	case "yst":
-		world = format(yellow, mess)
-	case "ybt":
-		world = bformat(yellow, mess)
-	case "rst":
-		world = format(red, mess)
-	case "rbt":
-		world = bformat(red, mess)
-	case "gst":
-		world = format(lime, mess)
-	case "gbt":
-		world = bformat(lime, mess)
-	case "bst":
-		world = format(aqua, mess)
-	case "bbt":
-		world = bformat(aqua, mess)
-	case "wst":
-		world = format(white, mess)
-	case "wbt":
-		world = bformat(white, mess)
-	default:
-		world = mess
-	}
-	//fmt.Printf("wordset:%s\n", world)
-	return world
-}
-func Sprint(form string) string {
-	items := strings.Split(form, "#")
-	ilen := len(items)
-	msg := ""
-	for i := 0; i < ilen; i++ {
-		item := items[i]
-		if i == 0 {
-			msg = msg + item
-		} else {
-			if 0 < len(items[i-1]) {
-				lastSymbol := string((items[i-1])[len(items[i-1])-1])
-				if lastSymbol != "!" {
-					rt := setcolor(item)
-					format(aqua, "aqua")
-					msg = msg + rt
-				} else {
-
-					msg = msg + item
-				}
-				//fmt.Println("last:", lastSymbol)
-			} else {
-				rt := setcolor(item)
-				msg = msg + rt
-			}
-		}
-
-	}
-	//fmt.Printf("msg: %s\n", msg)
-	return msg
+	return "\033[0m" + reset + c + "\033[1m" + word //+ reset //+ "\033[0m"
 }
 
 //Println string
@@ -162,4 +73,61 @@ func Printf(wformat string, a ...interface{}) {
 }
 func init() {
 	supportscolor.Stdout()
+}
+func toString(a interface{}) interface{} {
+	switch a.(type) {
+	case int:
+		return strconv.Itoa(a.(int))
+		// v is an int here, so e.g. v + 1 is possible.
+		//fmt.Printf("Integer: %v", v)
+	case float64:
+		return strconv.FormatInt(int64(a.(int64)), 10)
+		// v is a float64 here, so e.g. v + 1.0 is possible.
+	//	fmt.Printf("Float64: %v", v)
+	case string:
+		return a
+		// v is a string here, so e.g. v + " Yeah!" is possible.
+	//	fmt.Printf("String: %v", v)
+	default:
+		return fmt.Sprintf("%v", a)
+		// And here I'm feeling dumb. ;)
+		//	fmt.Printf("I don't know, ask stackoverflow.")
+	}
+	//return a
+}
+func tab(n int) string {
+	var tab string
+	for i := 0; i < n; i++ {
+		tab = tab + "  "
+	}
+	return tab
+}
+func parse(d interface{}, n int) string {
+	v := reflect.ValueOf(d)
+	t := v.Type()
+	var msg string
+	for i := 0; i < t.NumField(); i++ {
+		ty := t.Field(i).Type.Kind()
+		if ty != reflect.Struct {
+			name := t.Field(i).Name
+			value := v.FieldByName(name).Interface()
+			msg = msg + fmt.Sprintf("%s#bbt%s#tbt: #gbt%s\n", tab(n), toString(name), toString(value))
+		} else {
+			name := t.Field(i).Name
+			msg = msg + tab(n) + "#bbt" + name + " #tbt: #ybt{\n" + parse(v.FieldByName(t.Field(i).Name).Interface(), n+1) + tab(n) + "#ybt}\n"
+		}
+	}
+	return msg
+}
+func SprintStruct(d interface{}) string {
+	f := reflect.ValueOf(d).Type()
+	if f.Kind() != reflect.Struct {
+		return fmt.Sprintf("%v", d)
+	}
+	v := f.Name()
+	return "struct #gbt" + v + " #tbt[\n" + parse(d, 1) + "#tbt]"
+
+}
+func PrintStruct(d interface{}) {
+	Printfln(SprintStruct(d))
 }
