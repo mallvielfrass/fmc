@@ -1,3 +1,4 @@
+
 # FMC (Format Color)
 ##### Library  for coloring text in the console.
 ### powered by https://github.com/fatih/color
@@ -116,4 +117,3 @@ func main() {
 # Result
 
 [![Result](https://raw.githubusercontent.com/mallvielfrass/fmc/main/scrot_2021-07-09-20_1920x1080_000.png "Result")](https://raw.githubusercontent.com/mallvielfrass/fmc/main/scrot_2021-07-09-20_1920x1080_000.png "Result");
-
