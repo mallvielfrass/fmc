@@ -69,4 +69,5 @@ func main() {
 		panic(err)
 	}
 	fmc.PrintStruct(config)
+
 }
