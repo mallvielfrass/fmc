@@ -21,9 +21,14 @@ func errorHandlePrepare(e error, a ...interface{}) string {
 	//return ""
 }
 func ErrorHandle(e error, a ...interface{}) {
-	fmt.Println(errorHandlePrepare(e, a[0]))
+	if e != nil {
+		fmt.Println(errorHandlePrepare(e, a[0]))
+	}
+
 }
 func ErrorHandleFatal(e error, a ...interface{}) {
-	std.Output(2, errorHandlePrepare(e, a[0]))
-	os.Exit(1)
+	if e != nil {
+		std.Output(2, errorHandlePrepare(e, a[0]))
+		os.Exit(1)
+	}
 }
