@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"os"
 
 	"github.com/mallvielfrass/fmc"
 )
@@ -32,7 +33,7 @@ func beta() {
 	fmc.ErrorHandle(errors.New("Err"), "file")
 }
 func betaR() {
-	fmc.ErrorHandleFatal(errors.New("Err"), "file")
+	fmc.ErrorHandleFatal(errors.New("Err"))
 }
 func main() {
 	// fmc.Printf("#yst I#ybt  love#bbt  Go#gbt!\n")
@@ -75,8 +76,13 @@ func main() {
 	// 	panic(err)
 	// }
 	// fmc.PrintStruct(config)
-	beta()
-	fmc.ErrorHandle(errors.New("Err"), "file")
-	betaR()
+	//	beta()
+	//	fmc.ErrorHandle(errors.New("Err"), "file")
+	fmc.ErrorHandle(errors.New("Err"))
+	//	betaR()
 	//fmc.ErrorHandleFatal(errors.New("Err"))
+	token := os.Getenv("token")
+	if token == "" {
+		fmc.ErrorHandleFatal(errors.New("os variable 'token' not found"))
+	}
 }
