@@ -2,6 +2,7 @@ package fmc
 
 import (
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -77,5 +78,34 @@ func WhoCallerIs() string {
 	}
 	//	Printfln("#gbt%s#wbt:#gbt%d #ybt%s", file, line, name.Name())
 	return frame.Func.Name()
+
+}
+
+//WhoCallerIs calling func name
+func WhoCallerErr() (string, string, string) {
+	pc := make([]uintptr, 40)
+	n := runtime.Callers(0, pc)
+	//var root []uintptr
+	//root[0] = pc[0]
+	// Printfln("#rbtn= #gbt%d", n)
+	pc = pc[4 : n-2] // pass only valid pcs to runtime.CallersFrames
+	frames := runtime.CallersFrames(pc)
+	//runtime.CallersFrames(root)
+	//fmt.Println(frames)
+	frame, _ := frames.Next()
+
+	//name, line, file := frame.Func, frame.Line, frame.File
+	//	fmt.Println(name)
+	if frame.Func == nil {
+		//	fmt.Println("name==nil")
+		f := runtime.FuncForPC(frame.PC)
+		file, line := f.FileLine(frame.PC)
+		//fmt.Printf("%s:%d %s\n", file, line, f.Name())
+		//	Printfln("#gbt%s#wbt:#gbt%d #ybt%s", file, line, f.Name())
+		return file, strconv.Itoa(line), f.Name()
+	}
+
+	//	Printfln("#gbt%s#wbt:#gbt%d #ybt%s", file, line, name.Name())
+	return frame.File, strconv.Itoa(frame.Line), frame.Func.Name()
 
 }
