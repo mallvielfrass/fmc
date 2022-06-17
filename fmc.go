@@ -74,14 +74,20 @@ func Printf(wformat string, a ...interface{}) {
 func init() {
 	supportscolor.Stdout()
 }
-func toString(a interface{}) interface{} {
-	switch a.(type) {
+func FloatToString(input_num float64) string {
+	// to convert a float number to a string
+	return strconv.FormatFloat(input_num, 'f', 6, 64)
+}
+
+func toString(a interface{}) string {
+	switch a := a.(type) {
 	case int:
-		return strconv.Itoa(a.(int))
+		return strconv.Itoa(a)
 		// v is an int here, so e.g. v + 1 is possible.
 		//fmt.Printf("Integer: %v", v)
 	case float64:
-		return strconv.FormatInt(int64(a.(int64)), 10)
+		return FloatToString(a)
+
 		// v is a float64 here, so e.g. v + 1.0 is possible.
 	//	fmt.Printf("Float64: %v", v)
 	case string:
@@ -110,6 +116,7 @@ func parse(d interface{}, n int) string {
 		ty := t.Field(i).Type.Kind()
 		if ty != reflect.Struct {
 			name := t.Field(i).Name
+			//	v:= t.Field((i).
 			value := v.FieldByName(name).Interface()
 			msg = msg + fmt.Sprintf("%s#bbt%s#tbt: #gbt%s\n", tab(n), toString(name), toString(value))
 		} else {
